@@ -2,6 +2,7 @@
 [[ -z "$WORKON_DIR" ]] && WORKON_DIR="$HOME/.config/workon"
 WORKON_PROFILES_DIR="$WORKON_DIR/profiles"
 WORKON_UTILS_DIR="$WORKON_DIR/utils"
+WORKON_DEFAULTS_DIR="$WORKON_DIR/defaults"
 
 # activate_profile brings a new profile into scope by sourcing the approprite
 # bash script.
@@ -13,7 +14,7 @@ function __activate_profile {
 
     unset __profile_launch
 
-    source "$WORKON_PROFILES_DIR/$1.sh" || return
+    source "$(__get_full_profile $1)" || return
     WORKON_CURRENT_PROFILE="$1"
 
     if ! __function_exists __profile_launch; then
@@ -53,16 +54,24 @@ function __new_profile {
     fi
 
     __check_profile_dir
-    cp defaults/profile.sh "$WORKON_PROFILES_DIR/$1.sh"
+    cp "$(__get_full_default profile)" "$(__get_full_profile $1)"
 }
 
 # usage prints usage information
 function __usage {
-    echo "Usage: workon --new <profile> | workon --clean | workon [--tmux] [profile]"
+    echo "Usage: workon --new <profile> | workon --clean | workon [--tmux|--edit] [profile]"
+}
+
+function __get_full_profile {
+    echo "$WORKON_PROFILES_DIR/$1.sh"
+}
+
+function __get_full_default {
+    echo "$WORKON_DEFAULTS_DIR/$1.sh"
 }
 
 function __profile_exists {
-    [[ -f "$WORKON_PROFILES_DIR/$1.sh" ]]
+    [[ -f "$(__get_full_profile $1)" ]]
 }
 
 function __function_exists {
@@ -93,6 +102,7 @@ function workon {
     let new=0
     let clean=0
     let use_tmux=0
+    let edit=0
 
     case "$1" in
         -h|--help)
@@ -109,6 +119,10 @@ function workon {
             ;;
         -t|--tmux)
             let use_tmux=1
+            shift
+            ;;
+        -e|--edit)
+            let edit=1
             shift
             ;;
     esac
@@ -136,6 +150,11 @@ function workon {
 
     if (( $use_tmux == 1 )); then
         __launch_tmux "$profile"
+        return
+    fi
+
+    if (( $edit == 1 )); then
+        $EDITOR "$(__get_full_profile $profile)"
         return
     fi
 
