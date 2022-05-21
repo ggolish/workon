@@ -119,7 +119,7 @@ function workon {
             return
         fi
         profile=$(__profile_select)
-        [[ -z "$profile" ]] && echo "cancelled" && popd && return
+        [[ -z "$profile" ]] && return
     else
         profile="$1"
     fi
