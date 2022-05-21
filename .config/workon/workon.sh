@@ -1,7 +1,7 @@
 
 [[ -z "$WORKON_DIR" ]] && WORKON_DIR="$HOME/.config/workon"
 WORKON_PROFILES_DIR="$WORKON_DIR/profiles"
-WORKON_ENV_DIR="$WORKON_DIR/envs"
+WORKON_UTILS_DIR="$WORKON_DIR/utils"
 
 # activate_profile brings a new profile into scope by sourcing the approprite
 # bash script.
@@ -22,7 +22,7 @@ function __activate_profile {
     fi
 
     unset __env_activate
-    for env in $WORKON_ENV_DIR/*.sh; do
+    for env in $WORKON_UTILS_DIR/*.sh; do
         source "$env" || continue
         if ! __function_exists __env_activate; then
             echo "env '$env' does not implement '__env_activate', skipping"
