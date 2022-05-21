@@ -1,7 +1,7 @@
 
-WORKON_DIR="$(pwd)"
-WORKON_PROFILES_DIR="profiles"
-WORKON_ENV_DIR="envs"
+[[ -z "$WORKON_DIR" ]] && WORKON_DIR="$HOME/.config/workon"
+WORKON_PROFILES_DIR="$WORKON_DIR/profiles"
+WORKON_ENV_DIR="$WORKON_DIR/envs"
 
 # activate_profile brings a new profile into scope by sourcing the approprite
 # bash script.
@@ -113,11 +113,9 @@ function workon {
             ;;
     esac
 
-    pushd $WORKON_DIR
     if [[ -z "$1" ]]; then
         if (( $new == 1 )); then
             echo "must provide profile name"
-            popd
             return
         fi
         profile=$(__profile_select)
@@ -128,21 +126,18 @@ function workon {
 
     if (( $new == 1 )); then
         __new_profile "$profile"
-        popd
         return
     fi
 
     if (( $clean == 1 )); then
         __cleanup_profile "$WORKON_CURRENT_PROFILE"
-        popd
         return
     fi
 
     if (( $use_tmux == 1 )); then
         __launch_tmux "$profile"
-        popd
         return
     fi
 
-    __activate_profile "$profile" || popd
+    __activate_profile "$profile"
 }
