@@ -28,7 +28,7 @@ function __activate_profile {
             echo "env '$env' does not implement '__env_activate', skipping"
             continue
         fi
-        __env_activate || "failed to activate env '$env'"
+        __env_activate || echo "failed to activate env '$env'"
         unset __env_activate
     done
 
