@@ -38,6 +38,11 @@ function __util_activate {
     fi
 
     if [[ ! -d "$BR" ]]; then
+        # FUTURE: allow for creating and initializing a new repo at $BR if it
+        # is unable to be fetched from the remote link. The new function should:
+        #   - prompt the user to see if they want to
+        #   - create the directory and initialize git
+        #   - set origin to the remote link
         if ! __fetch_repo; then
             echo "failed to fetch git repo $WORKON_GIT_REMOTE"
             return
