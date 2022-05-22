@@ -23,7 +23,7 @@ function __ensure_pyenv_virtualenv {
     fi
 }
 
-function __env_activate {
+function __util_activate {
     if [[ -z "$WORKON_PYENV_VIRTUALENV" ]]; then
         return
     fi

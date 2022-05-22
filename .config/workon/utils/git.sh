@@ -32,7 +32,7 @@ function __worktree_select {
     BR="$BR/$choice"
 }
 
-function __env_activate {
+function __util_activate {
     if [[ -z "$BR" ]] || [[ -z "$WORKON_GIT_REMOTE" ]]; then
         return
     fi

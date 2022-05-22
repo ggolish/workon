@@ -22,15 +22,15 @@ function __activate_profile {
         return
     fi
 
-    unset __env_activate
+    unset __util_activate
     for env in $WORKON_UTILS_DIR/*.sh; do
         source "$env" || continue
-        if ! __function_exists __env_activate; then
-            echo "env '$env' does not implement '__env_activate', skipping"
+        if ! __function_exists __util_activate; then
+            echo "env '$env' does not implement '__util_activate', skipping"
             continue
         fi
-        __env_activate || echo "failed to activate env '$env'"
-        unset __env_activate
+        __util_activate || echo "failed to activate env '$env'"
+        unset __util_activate
     done
 
     if [[ ! -z "$BR" ]]; then
@@ -53,14 +53,14 @@ function __cleanup_profile {
         fi
     fi
 
-    unset __env_clean
+    unset __util_clean
     for env in $WORKON_UTILS_DIR/*.sh; do
         source "$env" || continue
-        if ! __function_exists __env_clean; then
+        if ! __function_exists __util_clean; then
             continue
         fi
-        __env_clean || echo "failed to clean env '$env'"
-        unset __env_clean
+        __util_clean || echo "failed to clean env '$env'"
+        unset __util_clean
     done
 
     # return to directory workon was initially called on
@@ -69,7 +69,7 @@ function __cleanup_profile {
     fi
 
     # clean known functions from utils and profiles
-    unset __env_activate
+    unset __util_activate
     unset __profile_launch
 
     # clean known environment variables

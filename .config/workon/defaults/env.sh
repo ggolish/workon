@@ -1,7 +1,7 @@
-function __env_activate {
+function __util_activate {
     echo "hello, env!"
 }
 
-function __env_clean {
+function __util_clean {
     echo "goodbye, env!"
 }
