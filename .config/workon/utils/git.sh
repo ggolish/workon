@@ -46,3 +46,8 @@ function __util_activate {
 
     [[ ! -z "$WORKON_GIT_WORKTREES" ]] && __worktree_select
 }
+
+function __util_clean {
+    unset WORKON_GIT_REMOTE
+    unset WORKON_GIT_WORKTREES
+}

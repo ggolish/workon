@@ -32,6 +32,19 @@ function __util_activate {
         return
     fi
     __ensure_pyenv_virtualenv
-    pyenv activate $WORKON_PYENV_VIRTUALENV
+    pyenv activate $WORKON_PYENV_VIRTUALENV && WORKON_PYENV_ACTIVE=1
 }
 
+function __util_clean {
+    if [[ -z "$WORKON_PYENV_VIRTUALENV" ]]; then
+        return
+    fi
+
+    if [[ ! -z $WORKON_PYENV_ACTIVE ]]; then
+        pyenv deactivate
+    fi
+
+    unset WORKON_PYENV_ACTIVE
+    unset WORKON_PYENV_VIRTUALENV
+    unset WORKON_PYENV_VERSION
+}
