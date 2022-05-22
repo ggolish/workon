@@ -93,6 +93,17 @@ function __launch_tmux {
     tmux attach -t "$1"
 }
 
+function __remove_profile {
+    echo -n "Remove profile '$1'? [y/N] "
+    read choice
+    case "$choice" in
+        y|Y)
+            rm -f "$(__get_full_profile $1)" || echo "failed to remove profile '$1'"
+            ;;
+    esac
+
+}
+
 function workon {
     if (( $# > 2 )); then
         __usage
@@ -100,6 +111,7 @@ function workon {
     fi
 
     let new=0
+    let remove=0
     let clean=0
     let use_tmux=0
     let edit=0
@@ -111,6 +123,10 @@ function workon {
             ;;
         -n|--new)
             let new=1
+            shift
+            ;;
+        -r|--remove)
+            let remove=1
             shift
             ;;
         -c|--clean)
@@ -155,6 +171,11 @@ function workon {
 
     if (( $edit == 1 )); then
         $EDITOR "$(__get_full_profile $profile)"
+        return
+    fi
+
+    if (( $remove == 1 )); then
+        __remove_profile "$profile"
         return
     fi
 
