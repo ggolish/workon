@@ -33,7 +33,10 @@ function __activate_profile {
         unset __env_activate
     done
 
-    [[ ! -z "$BR" ]] && cd "$BR"
+    if [[ ! -z "$BR" ]]; then
+        WORKON_RETURN_DIR=$(pwd)
+        cd "$BR"
+    fi
 
     # profiles must be launched after envs have been activated to allow the env
     # to modify the launch function if necessary
@@ -43,7 +46,36 @@ function __activate_profile {
 # cleanup_profile cleans up the current active profile. Only things that would
 # interfere with other profiles will be cleaned up.
 function __cleanup_profile {
-    echo "unimplemented"
+    if [[ ! -z "$WORKON_CURRENT_PROFILE" ]]; then
+        if __function_exists __profile_clean; then
+            __profile_clean || echo "failed to clean profile '$WORKON_CURRENT_PROFILE'"
+            unset __profile_clean
+        fi
+    fi
+
+    unset __env_clean
+    for env in $WORKON_UTILS_DIR/*.sh; do
+        source "$env" || continue
+        if ! __function_exists __env_clean; then
+            continue
+        fi
+        __env_clean || echo "failed to clean env '$env'"
+        unset __env_clean
+    done
+
+    # return to directory workon was initially called on
+    if [[ ! -z "$WORKON_RETURN_DIR" ]]; then
+        cd "$WORKON_RETURN_DIR"
+    fi
+
+    # clean known functions from utils and profiles
+    unset __env_activate
+    unset __profile_launch
+
+    # clean known environment variables
+    unset BR
+    unset WORKON_CURRENT_PROFILE
+    unset WORKON_RETURN_DIR
 }
 
 # new_profile creates a new empty default profile
@@ -148,8 +180,10 @@ function workon {
             echo "must provide profile name"
             return
         fi
-        profile=$(__profile_select)
-        [[ -z "$profile" ]] && return
+        if (( $clean == 0 )); then
+            profile=$(__profile_select)
+            [[ -z "$profile" ]] && return
+        fi
     else
         profile="$1"
     fi
@@ -179,5 +213,9 @@ function workon {
         return
     fi
 
+    if [[ ! -z "$WORKON_CURRENT_PROFILE" ]]; then
+        echo "profile '$WORKON_CURRENT_PROFILE' already active"
+        return
+    fi
     __activate_profile "$profile"
 }
