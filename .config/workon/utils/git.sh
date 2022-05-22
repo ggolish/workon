@@ -10,9 +10,6 @@
 #   be prompted to choose a worktree, which will be appended to $BR.
 
 function __fetch_repo {
-    if [[ -d "$BR" ]]; then
-        return
-    fi
     if [[ ! -z "$WORKON_GIT_WORKTREES" ]]; then
         mkdir -p "$BR"
         git clone "$WORKON_GIT_REMOTE" "$BR/master"
