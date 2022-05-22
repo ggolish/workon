@@ -52,7 +52,9 @@ function __util_activate {
         fi
     fi
 
-    [[ ! -z "$WORKON_GIT_WORKTREES" ]] && __worktree_select
+    if [[ ! -z "$WORKON_GIT_WORKTREES" ]]; then
+        __worktree_select
+    fi
 }
 
 function __util_clean {
