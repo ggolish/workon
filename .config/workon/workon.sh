@@ -4,10 +4,10 @@ WORKON_PROFILES_DIR="$WORKON_DIR/profiles"
 WORKON_UTILS_DIR="$WORKON_DIR/utils"
 WORKON_DEFAULTS_DIR="$WORKON_DIR/defaults"
 
-# activate_profile brings a new profile into scope by sourcing the approprite
+# activate_profile brings a new profile into scope by sourcing the appropriate
 # bash script.
 function __activate_profile {
-    if ! __profile_exists $1; then
+    if ! __profile_exists "$1"; then
         echo "profile '$1' does not exist"
         return
     fi
@@ -23,28 +23,29 @@ function __activate_profile {
     fi
 
     unset __util_activate
-    for env in $WORKON_UTILS_DIR/*.sh; do
-        source "$env" || continue
+    for util in $WORKON_UTILS_DIR/*.sh; do
+        source "$util" || continue
         if ! __function_exists __util_activate; then
-            echo "env '$env' does not implement '__util_activate', skipping"
+            echo "util '$util' does not implement '__util_activate', skipping"
             continue
         fi
-        __util_activate || echo "failed to activate env '$env'"
+        __util_activate || echo "failed to activate util '$util'"
         unset __util_activate
     done
 
     if [[ ! -z "$BR" ]]; then
+        # store the directory workon was ran from so it can be returned to
+        # after cleanup has been called
         WORKON_RETURN_DIR=$(pwd)
         cd "$BR"
     fi
 
-    # profiles must be launched after envs have been activated to allow the env
+    # profiles must be launched after utils have been activated to allow the util
     # to modify the launch function if necessary
     __profile_launch || return
 }
 
-# cleanup_profile cleans up the current active profile. Only things that would
-# interfere with other profiles will be cleaned up.
+# cleanup_profile cleans up the current active profile
 function __cleanup_profile {
     if [[ ! -z "$WORKON_CURRENT_PROFILE" ]]; then
         if __function_exists __profile_clean; then
@@ -54,12 +55,12 @@ function __cleanup_profile {
     fi
 
     unset __util_clean
-    for env in $WORKON_UTILS_DIR/*.sh; do
-        source "$env" || continue
+    for util in $WORKON_UTILS_DIR/*.sh; do
+        source "$util" || continue
         if ! __function_exists __util_clean; then
             continue
         fi
-        __util_clean || echo "failed to clean env '$env'"
+        __util_clean || echo "failed to clean util '$util'"
         unset __util_clean
     done
 
@@ -85,46 +86,11 @@ function __new_profile {
         return
     fi
 
-    __check_profile_dir
+    __ensure_profile_dir
     cp "$(__get_full_default profile)" "$(__get_full_profile $1)"
 }
 
-# usage prints usage information
-function __usage {
-    echo "Usage: workon --new <profile> | workon --clean | workon [--tmux|--edit] [profile]"
-}
-
-function __get_full_profile {
-    echo "$WORKON_PROFILES_DIR/$1.sh"
-}
-
-function __get_full_default {
-    echo "$WORKON_DEFAULTS_DIR/$1.sh"
-}
-
-function __profile_exists {
-    [[ -f "$(__get_full_profile $1)" ]]
-}
-
-function __function_exists {
-    [[ $(type -t $1) == function ]]
-}
-
-function __check_profile_dir {
-    mkdir -p $WORKON_PROFILES_DIR
-}
-
-function __profile_select {
-    find $WORKON_PROFILES_DIR -name "*.sh" -exec basename {} .sh \; | \
-        fzf --prompt="Select a profile: " --preview="cat $WORKON_PROFILES_DIR/{}.sh"
-}
-
-function __launch_tmux {
-    tmux new -d -s "$1"
-    tmux send-keys -t "$1.0" "workon $1" ENTER
-    tmux attach -t "$1"
-}
-
+# remove_profile deletes an existing profile
 function __remove_profile {
     echo -n "Remove profile '$1'? [y/N] "
     read choice
@@ -136,6 +102,53 @@ function __remove_profile {
 
 }
 
+# usage prints usage information
+function __usage {
+    echo "Usage: workon --new <profile> | workon --clean | workon [--tmux|--edit] [profile]"
+}
+
+# get_full_profile converts a profile name to its actual path
+function __get_full_profile {
+    echo "$WORKON_PROFILES_DIR/$1.sh"
+}
+
+# get_full_profile converts a default name to its actual path
+function __get_full_default {
+    echo "$WORKON_DEFAULTS_DIR/$1.sh"
+}
+
+# profile_exists checks if a profiles exists in the profiles directory
+function __profile_exists {
+    [[ -f "$(__get_full_profile $1)" ]]
+}
+
+# function_exists checks if a function has been defined by name - useful to
+# check if a profile or util has defined an expected function
+function __function_exists {
+    [[ $(type -t $1) == function ]]
+}
+
+# ensure_profile_dir ensures the profiles directory exists
+function __ensure_profile_dir {
+    mkdir -p $WORKON_PROFILES_DIR
+}
+
+# profile_select prompts the user to select a profile via fzf
+function __profile_select {
+    find $WORKON_PROFILES_DIR -name "*.sh" -exec basename {} .sh \; | \
+        fzf --prompt="Select a profile: " --preview="cat $WORKON_PROFILES_DIR/{}.sh"
+}
+
+# launch_tmux launches a new tmux session with the name of the workon profile.
+# then it calls workon for that profile and attaches the session.
+# FUTURE: find a way to allow setting the root directory of the session to BR.
+function __launch_tmux {
+    tmux new -d -s "$1"
+    tmux send-keys -t "$1.0" "workon $1" ENTER
+    tmux attach -t "$1"
+}
+
+# workon is the actual function the user uses to interact with workon
 function workon {
     if (( $# > 2 )); then
         __usage
