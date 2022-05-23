@@ -44,6 +44,23 @@ function __update_br {
     fi
 }
 
+function __create_repo {
+    local git_root="$1"
+    if [[ -z "$git_root" ]]; then
+        return $(false)
+    fi
+
+    if [[ ! -z "$WORKON_GIT_WORKTREES" ]]; then
+        git_root="$git_root/master"
+    fi
+
+    mkdir -p "$git_root"
+    git -C "$git_root" init
+    if [[ ! -z "$WORKON_GIT_ROOT" ]]; then
+        mkdir -p "$git_root/$BR"
+    fi
+}
+
 function __util_activate {
     if [[ -z "$BR" ]] || [[ -z "$WORKON_GIT_REMOTE" ]]; then
         return
@@ -55,14 +72,18 @@ function __util_activate {
     fi
 
     if [[ ! -d "$git_root" ]]; then
-        # FUTURE: allow for creating and initializing a new repo at $BR if it
-        # is unable to be fetched from the remote link. The new function should:
-        #   - prompt the user to see if they want to
-        #   - create the directory and initialize git
-        #   - set origin to the remote link
-        if ! __fetch_repo "$git_root"; then
-            echo "failed to fetch git repo $WORKON_GIT_REMOTE"
-            return
+        if __prompt "Git repo not found, fetch from remote"; then
+            if ! __fetch_repo "$git_root"; then
+                echo "failed to fetch git repo $WORKON_GIT_REMOTE"
+                return $(false)
+            fi
+        elif __prompt "Create a new repo"; then
+            if ! __create_repo "$git_root"; then
+                echo "failed to initialize new git repo at '$git_root'"
+                return $(false)
+            fi
+        else
+            return $(false)
         fi
     fi
 
