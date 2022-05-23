@@ -102,6 +102,17 @@ function __remove_profile {
 
 }
 
+function __prompt {
+    echo -n "$1? [y/N] "
+    read choice
+    case "$choice" in
+        y|Y)
+            return
+            ;;
+    esac
+    false
+}
+
 # usage prints usage information
 function __usage {
     echo "Usage: workon --new <profile> | workon --clean | workon [--tmux|--edit] [profile]"
