@@ -158,7 +158,7 @@ function __ensure_profile_dir {
 
 # profile_select prompts the user to select a profile via fzf
 function __profile_select {
-    find $WORKON_PROFILES_DIR -name "*.sh" -exec basename {} .sh \; | \
+    find -L $WORKON_PROFILES_DIR -name "*.sh" -exec basename {} .sh \; | \
         fzf --prompt="Select a profile: " --preview="cat $WORKON_PROFILES_DIR/{}.sh"
 }
 
