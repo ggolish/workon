@@ -152,11 +152,32 @@ function __profile_select {
 
 # launch_tmux launches a new tmux session with the name of the workon profile.
 # then it calls workon for that profile and attaches the session.
-# FUTURE: find a way to allow setting the root directory of the session to BR.
+# Tmux launch rules:
+# 1. Will not launch tmux session from within an attached tmux session
+# 2. Will not launch tmux session if there is an active workon profile
+# 3. Will not launch tmux session if session with same name exists, will just
+#    attach instead
 function __launch_tmux {
-    tmux new -d -s "$1"
-    tmux send-keys -t "$1.0" "workon $1" ENTER
-    tmux attach -t "$1"
+    if [[ ! -z "$WORKON_CURRENT_PROFILE" ]]; then
+        echo "failed to launch tmux: workon profile active"
+        return
+    fi
+
+    if [[ ! -z "$TMUX" ]]; then
+        echo "failed to launch tmux: tmux session already attached"
+        return
+    fi
+
+    local session="$1"
+
+    if tmux has-session -t "$session"; then
+        tmux attach -t "$session"
+        return
+    fi
+
+    tmux new -d -s "$session"
+    tmux send-keys -t "$session.0" "workon $session" ENTER
+    tmux attach -t "$session"
 }
 
 # workon is the actual function the user uses to interact with workon
