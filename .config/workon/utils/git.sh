@@ -11,6 +11,7 @@
 #   to a directory containing subdirectories that are actually worktrees of the
 #   repo, where $BR/master contains the actual repo itself. Then the user will
 #   be prompted to choose a worktree, which will be appended to $BR.
+# WORKON_GIT_CURRENT_WORKTREE => Specifies the chosen worktree
 
 function __fetch_repo {
     if [[ ! -z "$WORKON_GIT_WORKTREES" ]]; then
@@ -89,7 +90,13 @@ function __util_activate {
 
     wt=""
     if [[ ! -z "$WORKON_GIT_WORKTREES" ]]; then
-        wt="$(__worktree_select "$git_root")"
+        if [[ -z "$WORKON_GIT_CURRENT_WORKTREE" ]]; then
+            wt="$(__worktree_select "$git_root")"
+            WORKON_SESSION_NAME="$WORKON_SESSION_NAME-$wt"
+            __tmux_env_append "WORKON_GIT_CURRENT_WORKTREE=$wt"
+        else
+            wt="$WORKON_GIT_CURRENT_WORKTREE"
+        fi
     fi
 
     __update_br "$wt"
@@ -99,4 +106,5 @@ function __util_clean {
     unset WORKON_GIT_ROOT
     unset WORKON_GIT_REMOTE
     unset WORKON_GIT_WORKTREES
+    unset WORKON_GIT_CURRENT_WORKTREE
 }

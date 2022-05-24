@@ -7,18 +7,20 @@ WORKON_DEFAULTS_DIR="$WORKON_DIR/defaults"
 # activate_profile brings a new profile into scope by sourcing the appropriate
 # bash script.
 function __activate_profile {
-    if ! __profile_exists "$1"; then
-        echo "profile '$1' does not exist"
+    local profile="$1"
+    if ! __profile_exists "$profile"; then
+        echo "profile '$profile' does not exist"
         return
     fi
 
     unset __profile_launch
 
-    source "$(__get_full_profile $1)" || return
-    WORKON_CURRENT_PROFILE="$1"
+    source "$(__get_full_profile $profile)" || return
+    WORKON_CURRENT_PROFILE="$profile"
+    WORKON_SESSION_NAME="$profile"
 
     if ! __function_exists __profile_launch; then
-        echo "profile '$1' does not implement '__profile_launch'"
+        echo "profile '$profile' does not implement '__profile_launch'"
         return
     fi
 
@@ -38,6 +40,13 @@ function __activate_profile {
         # after cleanup has been called
         WORKON_RETURN_DIR=$(pwd)
         cd "$BR"
+    fi
+
+    # Launch in tmux if specified, cleanup afterward
+    if [[ ! -z "$WORKON_USE_TMUX" ]]; then
+        __launch_tmux "$profile" "$BR" "$WORKON_SESSION_NAME"
+        __cleanup_profile
+        return
     fi
 
     # profiles must be launched after utils have been activated to allow the util
@@ -77,6 +86,9 @@ function __cleanup_profile {
     unset BR
     unset WORKON_CURRENT_PROFILE
     unset WORKON_RETURN_DIR
+    unset WORKON_USE_TMUX
+    unset WORKON_SESSION_NAME
+    unset WORKON_TMUX_ENV
 }
 
 # new_profile creates a new empty default profile
@@ -158,26 +170,32 @@ function __profile_select {
 # 3. Will not launch tmux session if session with same name exists, will just
 #    attach instead
 function __launch_tmux {
-    if [[ ! -z "$WORKON_CURRENT_PROFILE" ]]; then
-        echo "failed to launch tmux: workon profile active"
-        return
-    fi
-
     if [[ ! -z "$TMUX" ]]; then
         echo "failed to launch tmux: tmux session already attached"
         return
     fi
 
-    local session="$1"
+    local profile="$1"
+    local working_dir="$2"
+    local session="$3"
 
-    if tmux has-session -t "$session"; then
+    if tmux has-session -t "$session" 2> /dev/null; then
         tmux attach -t "$session"
         return
     fi
 
-    tmux new -d -s "$session"
-    tmux send-keys -t "$session.0" "workon $session" ENTER
+    echo "$WORKON_TMUX_ENV" | xargs tmux new -d -s "$session" -c "$working_dir"
+    tmux send-keys -t "$session.0" "workon $profile" ENTER
     tmux attach -t "$session"
+}
+
+function __tmux_env_append {
+    local v="$1"
+    if [[ -z "$WORKON_TMUX_ENV" ]]; then
+        WORKON_TMUX_ENV="-e $v"
+    else
+        WORKON_TMUX_ENV="$WORKON_TMUX_ENV -e $v"
+    fi
 }
 
 # workon is the actual function the user uses to interact with workon
@@ -190,7 +208,6 @@ function workon {
     let new=0
     let remove=0
     let clean=0
-    let use_tmux=0
     let edit=0
 
     case "$1" in
@@ -211,7 +228,7 @@ function workon {
             shift
             ;;
         -t|--tmux)
-            let use_tmux=1
+            WORKON_USE_TMUX=1
             shift
             ;;
         -e|--edit)
@@ -240,11 +257,6 @@ function workon {
 
     if (( $clean == 1 )); then
         __cleanup_profile "$WORKON_CURRENT_PROFILE"
-        return
-    fi
-
-    if (( $use_tmux == 1 )); then
-        __launch_tmux "$profile"
         return
     fi
 
