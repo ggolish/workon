@@ -39,7 +39,11 @@ function __activate_profile {
         # store the directory workon was ran from so it can be returned to
         # after cleanup has been called
         WORKON_RETURN_DIR=$(pwd)
+
+        # create BR if it does not yet exist
+        mkdir -p $BR
         cd "$BR"
+        alias ,="cd $BR"
     fi
 
     # Launch in tmux if specified, cleanup afterward
@@ -89,6 +93,9 @@ function __cleanup_profile {
     unset WORKON_USE_TMUX
     unset WORKON_SESSION_NAME
     unset WORKON_TMUX_ENV
+
+    # clean aliases
+    unalias ,
 }
 
 # new_profile creates a new empty default profile

@@ -70,6 +70,9 @@ function __util_activate {
     git_root="$BR"
     if [[ ! -z "$WORKON_GIT_ROOT" ]]; then
         git_root="$WORKON_GIT_ROOT"
+        alias ,,="cd $WORKON_GIT_ROOT"
+    else
+        alias ,,="cd $BR"
     fi
 
     if [[ ! -d "$git_root" ]]; then
@@ -107,4 +110,6 @@ function __util_clean {
     unset WORKON_GIT_REMOTE
     unset WORKON_GIT_WORKTREES
     unset WORKON_GIT_CURRENT_WORKTREE
+
+    unalias ,,
 }
