@@ -111,5 +111,8 @@ function __util_clean {
     unset WORKON_GIT_WORKTREES
     unset WORKON_GIT_CURRENT_WORKTREE
 
-    unalias ,,
+    # This alias may not have been set, fail silently in that case
+    if [[ ! -z "$(alias | grep "^alias ,,")" ]]; then
+        unalias ,,
+    fi
 }

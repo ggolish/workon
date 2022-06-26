@@ -28,7 +28,6 @@ function __activate_profile {
     for util in $WORKON_UTILS_DIR/*.sh; do
         source "$util" || continue
         if ! __function_exists __util_activate; then
-            echo "util '$util' does not implement '__util_activate', skipping"
             continue
         fi
         __util_activate || echo "failed to activate util '$util'"
