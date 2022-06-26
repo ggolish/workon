@@ -126,30 +126,30 @@ workon -c
 ### Profile structure
 
 A profile has three sections:
-    1. The first section is the global scope of the profile, where only workon
-       environment variables should be declared.
-    2. The second section is the scope of the `__profile_launch` function. This
-       is where you should define your project specific environment, including
-       variables and functions. Defining them outside this scope could lead
-       to issues with variables like `$BR`, as some utilities modify the
-       workon environment variables between when the profile is sourced and
-       when the initialization function is run.
-    3. The last section is the scope of the `__profile_clean` function. This is
-       where you may add any clean up code for your profile, as this function
-       is used during clean up. For instance, you can use `unset` to remove
-       definitions for environment variables or functions you defined in
-       `__profile_init`.
+1. The first section is the global scope of the profile, where only workon
+   environment variables should be declared.
+2. The second section is the scope of the `__profile_launch` function. This
+   is where you should define your project specific environment, including
+   variables and functions. Defining them outside this scope could lead
+   to issues with variables like `$BR`, as some utilities modify the
+   workon environment variables between when the profile is sourced and
+   when the initialization function is run.
+3. The last section is the scope of the `__profile_clean` function. This is
+   where you may add any clean up code for your profile, as this function
+   is used during clean up. For instance, you can use `unset` to remove
+   definitions for environment variables or functions you defined in
+   `__profile_init`.
 
 ### Workon environment variables
 
 #### Required
 
-    - `$BR` => This is the only necessary environment variable needed for a
-      workon profile. It indicates the home directory of the project, and it
-      will be switched to automatically when the profile is launched. It is
-      also used by the utilities in various ways. It is best to set this to an
-      absolute path rather than a relative one. The directory will be created
-      if it does not exist.
+- `$BR` => This is the only necessary environment variable needed for a
+  workon profile. It indicates the home directory of the project, and it
+  will be switched to automatically when the profile is launched. It is
+  also used by the utilities in various ways. It is best to set this to an
+  absolute path rather than a relative one. The directory will be created
+  if it does not exist.
 
 #### Git utility
 
@@ -157,31 +157,31 @@ Workon can automatically fetch or create a git repository for you, or help
 manage work trees. To add this functionality, you can define the following
 environment variables in section 1:
 
-    - `$WORKON_GIT_REMOTE` → Set to the remote URI of the repository. If set,
-      workon will prompt the user to either attempt to clone the repository or
-      create a new one if `$BR` does not exist.
-    - `$WORKON_GIT_ROOT` → Useful when the desired `$BR` is a subdirectory of
-      a git repository. This variable can be set to the absolute path of the
-      git repository, and `$BR` should then be set to the relative path of the
-      desired directory from within the git repository. This would allow for
-      the git repo to be pulled if necessary, or for a work tree to be chosen,
-      before `$BR` is modified to have the desired absolute path.
-    - `$WORKON_GIT_WORKTREES=1` → Enable work tree selection mode. This
-      feature assumes that the `$BR` or `$WORKON_GIT_ROOT` points to a
-      directory with the following structure:
-      ```
-      repo-name
-        - mainbranch => the actual repository with main branch checked out
-        - worktree1 => a work tree of repo-name, all worktrees stored at
-          this level.
-        .
-        .
-        .
-      ```
-      If this is enabled when pulling a repository this structure will be made
-      automatically. The user will be prompted to choose a work tree when
-      launching the profile. `$BR` will be modified to include the proper work
-      tree path.
+- `$WORKON_GIT_REMOTE` → Set to the remote URI of the repository. If set,
+  workon will prompt the user to either attempt to clone the repository or
+  create a new one if `$BR` does not exist.
+- `$WORKON_GIT_ROOT` → Useful when the desired `$BR` is a subdirectory of
+  a git repository. This variable can be set to the absolute path of the
+  git repository, and `$BR` should then be set to the relative path of the
+  desired directory from within the git repository. This would allow for
+  the git repo to be pulled if necessary, or for a work tree to be chosen,
+  before `$BR` is modified to have the desired absolute path.
+- `$WORKON_GIT_WORKTREES=1` → Enable work tree selection mode. This
+  feature assumes that the `$BR` or `$WORKON_GIT_ROOT` points to a
+  directory with the following structure:
+  ```
+  repo-name
+    - mainbranch => the actual repository with main branch checked out
+    - worktree1 => a work tree of repo-name, all worktrees stored at
+      this level.
+    .
+    .
+    .
+  ```
+  If this is enabled when pulling a repository this structure will be made
+  automatically. The user will be prompted to choose a work tree when
+  launching the profile. `$BR` will be modified to include the proper work
+  tree path.
 
 #### Pyenv utility
 
@@ -191,28 +191,28 @@ to have both pyenv and
 [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) installed and
 configured properly.
 
-    - `$WORKON_PYENV_VIRTUALENV` → The name of the desired python virtual
-      environment to load. If it does not exist, it will be created.
-    - `$WORKON_PYENV_VERSION` → The python version to be used with the virtual
-      environment. Only used if the virtual environment must be created. Workon
-      does not check the version of an existing python virtual environment.
+- `$WORKON_PYENV_VIRTUALENV` → The name of the desired python virtual
+  environment to load. If it does not exist, it will be created.
+- `$WORKON_PYENV_VERSION` → The python version to be used with the virtual
+  environment. Only used if the virtual environment must be created. Workon
+  does not check the version of an existing python virtual environment.
 
 ### Aliases
 
 Workon will automatically set the following aliases:
 
-    - `,` → Changes directory to `$BR`
-    - `,,` → Changes directory to `$WORKON_GIT_ROOT` if it is set.
+- `,` → Changes directory to `$BR`
+- `,,` → Changes directory to `$WORKON_GIT_ROOT` if it is set.
 
 ### Key bindings
 
 Key bindings can be sourced via `.config/workon/commands.sh` if desired. The
 following key bindings will be defined:
 
-    - `<Alt-w-w>` → Inputs `workon`.
-    - `<Alt-w-t>` → Inputs `workon -t`.
-    - `<Alt-w-e>` → Inputs `workon -e`.
-    - `<Alt-w-c>` → Inputs `workon -c`.
+- `<Alt-w-w>` → Inputs `workon`.
+- `<Alt-w-t>` → Inputs `workon -t`.
+- `<Alt-w-e>` → Inputs `workon -e`.
+- `<Alt-w-c>` → Inputs `workon -c`.
 
 ### Example profile
 The following is an example profile one might make for completing [advent of
