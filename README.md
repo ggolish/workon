@@ -72,11 +72,11 @@ dependencies should you choose to use them in your profiles.
 ## Usage
 
 The basic workflow for workon is:
-    1. Create a profile, if necessary.
-    2. Edit the profile, if necessary.
-    3. Load the profile, either in the current shell session or in a tmux
-       session.
-    4. Clean the session, if necessary.
+1. Create a profile, if necessary.
+2. Edit the profile, if necessary.
+3. Load the profile, either in the current shell session or in a tmux
+session.
+4. Clean the session, if necessary.
 
 ### Creating a profile
 
