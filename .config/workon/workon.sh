@@ -94,7 +94,7 @@ function __cleanup_profile {
     unset WORKON_TMUX_ENV
 
     # clean aliases
-    unalias ,
+    alias , &> /dev/null && unalias ,
 }
 
 # new_profile creates a new empty default profile
