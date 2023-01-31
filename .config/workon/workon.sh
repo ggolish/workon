@@ -249,6 +249,14 @@ function workon {
             return
         fi
         if (( $clean == 0 )); then
+            if (( $edit == 1 )) && [[ -n "$WORKON_CURRENT_PROFILE" ]]; then
+                $EDITOR "$(__get_full_profile "$WORKON_CURRENT_PROFILE")"
+                if __function_exists __profile_clean; then
+                    __profile_clean
+                fi
+                __activate_profile "$WORKON_CURRENT_PROFILE"
+                return
+            fi
             profile=$(__profile_select)
             [[ -z "$profile" ]] && return
         fi
