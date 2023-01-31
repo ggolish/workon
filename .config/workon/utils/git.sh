@@ -96,6 +96,7 @@ function __util_activate {
         if [[ -z "$WORKON_GIT_CURRENT_WORKTREE" ]]; then
             wt="$(__worktree_select "$git_root")"
             WORKON_SESSION_NAME="$WORKON_SESSION_NAME-$wt"
+            WORKON_GIT_CURRENT_WORKTREE="$wt"
             __tmux_env_append "WORKON_GIT_CURRENT_WORKTREE=$wt"
         else
             wt="$WORKON_GIT_CURRENT_WORKTREE"
