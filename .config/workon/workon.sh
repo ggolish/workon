@@ -266,12 +266,12 @@ function workon {
 
     if (( $new == 1 )); then
         __new_profile "$profile"
+        $EDITOR "$(__get_full_profile $profile)"
         return
     fi
 
     if (( $clean == 1 )); then
         __cleanup_profile "$WORKON_CURRENT_PROFILE"
-        $EDITOR "$(__get_full_profile $profile)"
         return
     fi
 
