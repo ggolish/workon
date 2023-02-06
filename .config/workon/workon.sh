@@ -52,6 +52,11 @@ function __activate_profile {
         return
     fi
 
+    # Set the window name if running in tmux
+    if [[ -n "$TMUX" ]]; then
+        tmux rename-window "$profile"
+    fi
+
     # profiles must be launched after utils have been activated to allow the util
     # to modify the launch function if necessary
     __profile_launch || return
