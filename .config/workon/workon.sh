@@ -5,7 +5,7 @@ source "$WORKON_DIR/backend/tmux.sh"
 
 WORKON_PROFILES_DIR="$WORKON_DIR/profiles"
 WORKON_UTILS_DIR="$WORKON_DIR/utils"
-WORKON_DEFAULTS_DIR="$WORKON_DIR/defaults"
+WORKON_TEMPLATES_DIR="$WORKON_DIR/templates"
 
 # activate_profile brings a new profile into scope by sourcing the appropriate
 # bash script.
@@ -114,8 +114,9 @@ function __new_profile {
         return
     fi
 
-    __ensure_profile_dir
-    cp "$(__get_full_default profile)" "$(__get_full_profile $1)"
+    local template="$(__template_select)"
+    [[ -z "$template" ]] && template="base"
+    cp "$(__get_full_template $template)" "$(__get_full_profile $1)"
 }
 
 # remove_profile deletes an existing profile
@@ -189,6 +190,8 @@ function workon {
             shift
             ;;
     esac
+
+    __ensure_profile_dir
 
     if [[ -z "$1" ]]; then
         if (( $new == 1 )); then
