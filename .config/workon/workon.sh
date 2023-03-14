@@ -196,6 +196,9 @@ function workon {
             return
         fi
         if (( $clean == 0 )); then
+            # If no arguments are provided to edit flag and a current profile
+            # is active, edit the current profile and reload the current
+            # profile.
             if (( $edit == 1 )) && [[ -n "$WORKON_CURRENT_PROFILE" ]]; then
                 __edit_profile "$WORKON_CURRENT_PROFILE"
                 __reload_profile
