@@ -1,5 +1,8 @@
 
 [[ -z "$WORKON_DIR" ]] && WORKON_DIR="$HOME/.config/workon"
+source "$WORKON_DIR/backend/utils.sh"
+source "$WORKON_DIR/backend/tmux.sh"
+
 WORKON_PROFILES_DIR="$WORKON_DIR/profiles"
 WORKON_UTILS_DIR="$WORKON_DIR/utils"
 WORKON_DEFAULTS_DIR="$WORKON_DIR/defaults"
@@ -17,6 +20,8 @@ function __activate_profile {
 
     source "$(__get_full_profile $profile)" || return
     WORKON_CURRENT_PROFILE="$profile"
+
+    # Store the profile name to be used as tmux session name if necessary
     WORKON_SESSION_NAME="$profile"
 
     if ! __function_exists __profile_launch; then
@@ -125,88 +130,25 @@ function __remove_profile {
 
 }
 
-function __prompt {
-    echo -n "$1? [y/N] "
-    read choice
-    case "$choice" in
-        y|Y)
-            return
-            ;;
-    esac
-    false
+# edit_profile opens a profile in an editor
+function __edit_profile {
+    $EDITOR "$(__get_full_profile "$1")"
+}
+
+# reload_profile cleans the current profile and reloads it
+function __reload_profile {
+    [[ -z "$WORKON_CURRENT_PROFILE" ]] && return
+    local current_dir="$(pwd)"
+    if __function_exists __profile_clean; then
+        __profile_clean
+    fi
+    __activate_profile "$WORKON_CURRENT_PROFILE"
+    cd "$current_dir"
 }
 
 # usage prints usage information
 function __usage {
     echo "Usage: workon --new <profile> | workon --clean | workon [--tmux|--edit] [profile]"
-}
-
-# get_full_profile converts a profile name to its actual path
-function __get_full_profile {
-    echo "$WORKON_PROFILES_DIR/$1.sh"
-}
-
-# get_full_profile converts a default name to its actual path
-function __get_full_default {
-    echo "$WORKON_DEFAULTS_DIR/$1.sh"
-}
-
-# profile_exists checks if a profiles exists in the profiles directory
-function __profile_exists {
-    [[ -f "$(__get_full_profile $1)" ]]
-}
-
-# function_exists checks if a function has been defined by name - useful to
-# check if a profile or util has defined an expected function
-function __function_exists {
-    [[ $(type -t $1) == function ]]
-}
-
-# ensure_profile_dir ensures the profiles directory exists
-function __ensure_profile_dir {
-    mkdir -p $WORKON_PROFILES_DIR
-}
-
-# profile_select prompts the user to select a profile via fzf
-function __profile_select {
-    find -L $WORKON_PROFILES_DIR -name "*.sh" -exec basename {} .sh \; | \
-        fzf --prompt="Select a profile: " --preview="cat $WORKON_PROFILES_DIR/{}.sh"
-}
-
-# launch_tmux launches a new tmux session with the name of the workon profile.
-# then it calls workon for that profile and attaches the session.
-# Tmux launch rules:
-# 1. Will not launch tmux session from within an attached tmux session
-# 2. Will not launch tmux session if there is an active workon profile
-# 3. Will not launch tmux session if session with same name exists, will just
-#    attach instead
-function __launch_tmux {
-    if [[ ! -z "$TMUX" ]]; then
-        echo "failed to launch tmux: tmux session already attached"
-        return
-    fi
-
-    local profile="$1"
-    local working_dir="$2"
-    local session="$3"
-
-    if tmux has-session -t "$session" 2> /dev/null; then
-        tmux attach -t "$session"
-        return
-    fi
-
-    echo "$WORKON_TMUX_ENV" | xargs tmux new -d -s "$session" -c "$working_dir"
-    tmux send-keys -t "$session.0" "workon $profile" ENTER
-    tmux attach -t "$session"
-}
-
-function __tmux_env_append {
-    local v="$1"
-    if [[ -z "$WORKON_TMUX_ENV" ]]; then
-        WORKON_TMUX_ENV="-e $v"
-    else
-        WORKON_TMUX_ENV="$WORKON_TMUX_ENV -e $v"
-    fi
 }
 
 # workon is the actual function the user uses to interact with workon
@@ -255,11 +197,8 @@ function workon {
         fi
         if (( $clean == 0 )); then
             if (( $edit == 1 )) && [[ -n "$WORKON_CURRENT_PROFILE" ]]; then
-                $EDITOR "$(__get_full_profile "$WORKON_CURRENT_PROFILE")"
-                if __function_exists __profile_clean; then
-                    __profile_clean
-                fi
-                __activate_profile "$WORKON_CURRENT_PROFILE"
+                __edit_profile "$WORKON_CURRENT_PROFILE"
+                __reload_profile
                 return
             fi
             profile=$(__profile_select)
@@ -281,7 +220,7 @@ function workon {
     fi
 
     if (( $edit == 1 )); then
-        $EDITOR "$(__get_full_profile $profile)"
+        __edit_profile "$profile"
         return
     fi
 
