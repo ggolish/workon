@@ -2,6 +2,7 @@
 [[ -z "$WORKON_DIR" ]] && WORKON_DIR="$HOME/.config/workon"
 source "$WORKON_DIR/backend/utils.sh"
 source "$WORKON_DIR/backend/tmux.sh"
+source "$WORKON_DIR/backend/template.sh"
 
 WORKON_PROFILES_DIR="$WORKON_DIR/profiles"
 WORKON_UTILS_DIR="$WORKON_DIR/utils"
@@ -154,15 +155,22 @@ function __usage {
 
 # workon is the actual function the user uses to interact with workon
 function workon {
-    if (( $# > 2 )); then
+    if (( $# > 3 )); then
         __usage
         return
     fi
+
+    let template_mode=0
 
     let new=0
     let remove=0
     let clean=0
     let edit=0
+
+    if [[ "$1" == "--template" ]]; then
+        let template_mode=1
+        shift
+    fi
 
     case "$1" in
         -h|--help)
@@ -192,6 +200,11 @@ function workon {
     esac
 
     __ensure_profile_dir
+
+    if (( $template_mode == 1 )); then
+        __template_main "$new" "$remove" "$edit" "$1"
+        return
+    fi
 
     if [[ -z "$1" ]]; then
         if (( $new == 1 )); then
