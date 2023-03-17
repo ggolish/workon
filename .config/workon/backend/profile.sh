@@ -11,8 +11,8 @@ function __activate_profile {
 
     unset __profile_launch
 
-    source "$(__get_full_profile $profile)" || return
     WORKON_CURRENT_PROFILE="$profile"
+    source "$(__get_full_profile $profile)" || return
 
     # Store the profile name to be used as tmux session name if necessary
     WORKON_SESSION_NAME="$profile"
