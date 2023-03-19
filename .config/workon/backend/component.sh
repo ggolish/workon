@@ -1,51 +1,57 @@
 #!/bin/bash
 
 function __include_component {
-    local component="$1"
-    if [[ -z "$component" ]]; then
-        echo "must provide component name" >&2
-        return
-    fi
+    while (( $# > 0 )); do
+        local component="$1"
+        if [[ -z "$component" ]]; then
+            echo "must provide component name" >&2
+            return
+        fi
 
-    local path="$(__get_full_component "$component")"
-    [[ ! -e "$path" ]] && echo "component $component does not exist" && return
-    source "$path"
+        local path="$(__get_full_component "$component")"
+        [[ ! -e "$path" ]] && echo "component $component does not exist" && return
+        source "$path"
 
-    if ! __function_exists "__component_launch"; then
-        echo "component $component does not define __component_launch"
-    else
-        __component_launch
-        unset __component_launch
-    fi
-    if ! __function_exists "__component_clean"; then
-        echo "component $component does not define __component_clean"
-    else
-        unset __component_clean
-    fi
+        if ! __function_exists "__component_launch"; then
+            echo "component $component does not define __component_launch"
+        else
+            __component_launch
+            unset __component_launch
+        fi
+        if ! __function_exists "__component_clean"; then
+            echo "component $component does not define __component_clean"
+        else
+            unset __component_clean
+        fi
+        shift
+    done
 }
 
 function __clean_component {
-    local component="$1"
-    if [[ -z "$component" ]]; then
-        echo "must provide component name" >&2
-        return
-    fi
+    while (( $# > 0 )); do
+        local component="$1"
+        if [[ -z "$component" ]]; then
+            echo "must provide component name" >&2
+            return
+        fi
 
-    local path="$(__get_full_component "$component")"
-    [[ ! -e "$path" ]] && echo "component $component does not exist" && return
-    source "$path"
+        local path="$(__get_full_component "$component")"
+        [[ ! -e "$path" ]] && echo "component $component does not exist" && return
+        source "$path"
 
-    if ! __function_exists "__component_clean"; then
-        echo "component $component does not define __component_clean"
-    else
-        __component_clean
-        unset __component_clean
-    fi
-    if ! __function_exists "__component_launch"; then
-        echo "component $component does not define __component_launch"
-    else
-        unset __component_launch
-    fi
+        if ! __function_exists "__component_clean"; then
+            echo "component $component does not define __component_clean"
+        else
+            __component_clean
+            unset __component_clean
+        fi
+        if ! __function_exists "__component_launch"; then
+            echo "component $component does not define __component_launch"
+        else
+            unset __component_launch
+        fi
+        shift
+    done
 }
 
 function __new_component {
