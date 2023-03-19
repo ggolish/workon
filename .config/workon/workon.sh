@@ -4,10 +4,12 @@ source "$WORKON_DIR/backend/utils.sh"
 source "$WORKON_DIR/backend/tmux.sh"
 source "$WORKON_DIR/backend/profile.sh"
 source "$WORKON_DIR/backend/template.sh"
+source "$WORKON_DIR/backend/component.sh"
 
 WORKON_PROFILES_DIR="$WORKON_DIR/profiles"
 WORKON_UTILS_DIR="$WORKON_DIR/utils"
 WORKON_TEMPLATES_DIR="$WORKON_DIR/templates"
+WORKON_COMPONENTS_DIR="$WORKON_DIR/components"
 #
 # usage prints usage information
 function __usage {
@@ -22,6 +24,7 @@ function workon {
     fi
 
     let template_mode=0
+    let component_mode=0
 
     let new=0
     let remove=0
@@ -30,6 +33,9 @@ function workon {
 
     if [[ "$1" == "--template" ]]; then
         let template_mode=1
+        shift
+    elif [[ "$1" == "--component" ]]; then
+        let component_mode=1
         shift
     fi
 
@@ -64,6 +70,11 @@ function workon {
 
     if (( $template_mode == 1 )); then
         __template_main "$new" "$remove" "$edit" "$1"
+        return
+    fi
+
+    if (( $component_mode == 1 )); then
+        __component_main "$new" "$remove" "$edit" "$1"
         return
     fi
 

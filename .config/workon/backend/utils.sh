@@ -22,6 +22,11 @@ function __get_full_template {
     echo "$WORKON_TEMPLATES_DIR/$1.sh"
 }
 
+# get_full_component converts a component name to its actual path
+function __get_full_component {
+    echo "$WORKON_COMPONENTS_DIR/$1.sh"
+}
+
 # profile_exists checks if a profiles exists in the profiles directory
 function __profile_exists {
     [[ -f "$(__get_full_profile $1)" ]]
@@ -36,6 +41,11 @@ function __function_exists {
 # ensure_profile_dir ensures the profiles directory exists
 function __ensure_profile_dir {
     mkdir -p $WORKON_PROFILES_DIR
+}
+
+# component_select prompts the user to select a component via fzf
+function __component_select {
+    __file_select "$WORKON_COMPONENTS_DIR" "Select a component"
 }
 
 # template_select prompts the user to select a template via fzf
