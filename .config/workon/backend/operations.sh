@@ -9,7 +9,6 @@ function __new {
         return
     fi
 
-    echo "__new $type $name"
     case "$type" in
         template)
             dest_dir="$WORKON_TEMPLATES_DIR"
@@ -23,6 +22,10 @@ function __new {
             dest_dir="$WORKON_PROFILES_DIR"
             template_dir="$WORKON_TEMPLATES_DIR"
             ;;
+        global)
+            dest_dir="$WORKON_GLOBALS_DIR"
+            template_dir=""
+            ;;
         *)
             echo "type $type unknown"
             return
@@ -32,6 +35,11 @@ function __new {
     local full_path="$dest_dir/$name.sh"
     if [[ -e "$full_path" ]]; then
         echo "$type $name already exists"
+        return
+    fi
+
+    if [[ -z "$template_dir" ]]; then
+        touch "$full_path" && __edit "$type" "$name"
         return
     fi
 
@@ -54,6 +62,9 @@ function __edit {
             ;;
         profile)
             dest_dir="$WORKON_PROFILES_DIR"
+            ;;
+        global)
+            dest_dir="$WORKON_GLOBALS_DIR"
             ;;
         *)
             echo "type $type unknown"
@@ -98,6 +109,9 @@ function __remove {
             ;;
         profile)
             dest_dir="$WORKON_PROFILES_DIR"
+            ;;
+        global)
+            dest_dir="$WORKON_GLOBALS_DIR"
             ;;
         *)
             echo "type $type unknown"

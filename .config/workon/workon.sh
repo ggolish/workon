@@ -6,12 +6,14 @@ source "$WORKON_DIR/backend/tmux.sh"
 source "$WORKON_DIR/backend/profile.sh"
 source "$WORKON_DIR/backend/template.sh"
 source "$WORKON_DIR/backend/component.sh"
+source "$WORKON_DIR/backend/global.sh"
 
 WORKON_PROFILES_DIR="$WORKON_DIR/profiles"
 WORKON_UTILS_DIR="$WORKON_DIR/utils"
 WORKON_TEMPLATES_DIR="$WORKON_DIR/templates"
 WORKON_COMPONENTS_DIR="$WORKON_DIR/components"
-#
+WORKON_GLOBALS_DIR="$WORKON_DIR/globals"
+
 # usage prints usage information
 function __usage {
     echo "Usage: workon --new <profile> | workon --clean | workon [--tmux|--edit] [profile]"
@@ -37,6 +39,9 @@ function workon {
         shift
     elif [[ "$1" == "--component" ]]; then
         let component_mode=1
+        shift
+    elif [[ "$1" == "--global" ]]; then
+        let global_mode=1
         shift
     fi
 
@@ -77,5 +82,13 @@ function workon {
         return
     fi
 
+    if (( $global_mode == 1 )); then
+        __global_main "$new" "$remove" "$edit" "$1"
+        return
+    fi
+
     __profile_main "$new" "$remove" "$edit" "$clean" "$1"
 }
+
+# Globals are sourced alongside workon and are always available
+__load_globals
