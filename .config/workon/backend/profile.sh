@@ -100,35 +100,6 @@ function __cleanup_profile {
     alias , &> /dev/null && unalias ,
 }
 
-# new_profile creates a new empty default profile
-function __new_profile {
-    if __profile_exists "$1"; then
-        echo "profile '$1' already exists"
-        return
-    fi
-
-    local template="$(__template_select)"
-    [[ -z "$template" ]] && template="base"
-    cp "$(__get_full_template $template)" "$(__get_full_profile $1)"
-}
-
-# remove_profile deletes an existing profile
-function __remove_profile {
-    echo -n "Remove profile '$1'? [y/N] "
-    read choice
-    case "$choice" in
-        y|Y)
-            rm -f "$(__get_full_profile $1)" || echo "failed to remove profile '$1'"
-            ;;
-    esac
-
-}
-
-# edit_profile opens a profile in an editor
-function __edit_profile {
-    $EDITOR "$(__get_full_profile "$1")"
-}
-
 # reload_profile cleans the current profile and reloads it
 function __reload_profile {
     [[ -z "$WORKON_CURRENT_PROFILE" ]] && return
@@ -140,3 +111,58 @@ function __reload_profile {
     cd "$current_dir"
 }
 
+function __profile_main {
+    local new="$1"
+    local remove="$2"
+    local edit="$3"
+    local clean="$4"
+    local profile="$5"
+
+    __ensure_profile_dir
+
+    if [[ -z "$profile" ]]; then
+        if (( $new == 1 )); then
+            echo "must provide profile name"
+            return
+        fi
+        if (( $clean == 0 )); then
+            # If no arguments are provided to edit flag and a current profile
+            # is active, edit the current profile and reload the current
+            # profile.
+            if (( $edit == 1 )) && [[ -n "$WORKON_CURRENT_PROFILE" ]]; then
+                __edit profile "$WORKON_CURRENT_PROFILE"
+                __reload_profile
+                return
+            fi
+            profile=$(__file_select "$WORKON_PROFILES_DIR" "choose a profile")
+            [[ -z "$profile" ]] && return
+        fi
+    fi
+
+    if (( $new == 1 )); then
+        __new profile "$profile"
+        return
+    fi
+
+    if (( $clean == 1 )); then
+        __cleanup_profile "$WORKON_CURRENT_PROFILE"
+        return
+    fi
+
+    if (( $edit == 1 )); then
+        __edit profile "$profile"
+        return
+    fi
+
+    if (( $remove == 1 )); then
+        __remove profile "$profile"
+        return
+    fi
+
+    if [[ ! -z "$WORKON_CURRENT_PROFILE" ]]; then
+        echo "profile '$WORKON_CURRENT_PROFILE' already active"
+        return
+    fi
+
+    __activate_profile "$profile"
+}

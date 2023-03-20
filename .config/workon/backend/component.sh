@@ -54,58 +54,6 @@ function __clean_component {
     done
 }
 
-function __new_component {
-    local component="$1"
-    if [[ -z "$component" ]]; then
-        echo "must provide component name" >&2
-        return
-    fi
-    if [[ -f "$(__get_full_component $component)" ]]; then
-        echo "component $component already exists"
-        return
-    fi
-    local base_component="$(__component_select)"
-    [[ -z "$base_component" ]] && base_component="base"
-    cp "$(__get_full_component $base_component)" "$(__get_full_component $1)" && \
-        __edit_component "$component"
-}
-
-function __remove_component {
-    local component="$1"
-    if [[ -z "$component" ]]; then
-        component="$(__component_select)"
-        [[ -z "$component" ]] && return
-    fi
-
-    if [[ "$component" == "base" ]]; then
-        echo "can not edit base component"
-        return
-    fi
-
-    if __prompt "Remove component $component"; then
-        rm "$(__get_full_component $component)" || echo "failed to remove component $component"
-    fi
-}
-
-function __edit_component {
-    local component="$1"
-    if [[ -z "$component" ]]; then
-        component="$(__component_select)"
-        [[ -z "$component" ]] && return
-    fi
-
-    if [[ "$component" == "base" ]]; then
-        echo "can not edit base component"
-        return
-    fi
-
-    $EDITOR "$(__get_full_component $component)"
-}
-
-function __list_components {
-    local quiet=$(__component_select)
-}
-
 function __component_main {
     local new="$1"
     local remove="$2"
@@ -113,19 +61,19 @@ function __component_main {
     local component="$4"
 
     if (( $new == 1 )); then
-        __new_component "$component"
+        __new component "$component"
         return
     fi
 
     if (( $remove == 1 )); then
-        __remove_component "$component"
+        __remove component "$component"
         return
     fi
 
     if (( $edit == 1 )); then
-        __edit_component "$component"
+        __edit component "$component"
         return
     fi
 
-    __list_components
+    echo "nothing to do"
 }

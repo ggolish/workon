@@ -1,5 +1,6 @@
 
 [[ -z "$WORKON_DIR" ]] && WORKON_DIR="$HOME/.config/workon"
+source "$WORKON_DIR/backend/operations.sh"
 source "$WORKON_DIR/backend/utils.sh"
 source "$WORKON_DIR/backend/tmux.sh"
 source "$WORKON_DIR/backend/profile.sh"
@@ -66,8 +67,6 @@ function workon {
             ;;
     esac
 
-    __ensure_profile_dir
-
     if (( $template_mode == 1 )); then
         __template_main "$new" "$remove" "$edit" "$1"
         return
@@ -78,51 +77,5 @@ function workon {
         return
     fi
 
-    if [[ -z "$1" ]]; then
-        if (( $new == 1 )); then
-            echo "must provide profile name"
-            return
-        fi
-        if (( $clean == 0 )); then
-            # If no arguments are provided to edit flag and a current profile
-            # is active, edit the current profile and reload the current
-            # profile.
-            if (( $edit == 1 )) && [[ -n "$WORKON_CURRENT_PROFILE" ]]; then
-                __edit_profile "$WORKON_CURRENT_PROFILE"
-                __reload_profile
-                return
-            fi
-            profile=$(__profile_select)
-            [[ -z "$profile" ]] && return
-        fi
-    else
-        profile="$1"
-    fi
-
-    if (( $new == 1 )); then
-        __new_profile "$profile"
-        $EDITOR "$(__get_full_profile $profile)"
-        return
-    fi
-
-    if (( $clean == 1 )); then
-        __cleanup_profile "$WORKON_CURRENT_PROFILE"
-        return
-    fi
-
-    if (( $edit == 1 )); then
-        __edit_profile "$profile"
-        return
-    fi
-
-    if (( $remove == 1 )); then
-        __remove_profile "$profile"
-        return
-    fi
-
-    if [[ ! -z "$WORKON_CURRENT_PROFILE" ]]; then
-        echo "profile '$WORKON_CURRENT_PROFILE' already active"
-        return
-    fi
-    __activate_profile "$profile"
+    __profile_main "$new" "$remove" "$edit" "$clean" "$1"
 }
