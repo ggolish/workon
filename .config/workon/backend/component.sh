@@ -8,7 +8,7 @@ function __include_component {
             return
         fi
 
-        local path="$(__get_full_component "$component")"
+        local path="$WORKON_COMPONENTS_DIR/$component.sh"
         [[ ! -e "$path" ]] && echo "component $component does not exist" && return
         source "$path"
 
@@ -35,7 +35,7 @@ function __clean_component {
             return
         fi
 
-        local path="$(__get_full_component "$component")"
+        local path="$WORKON_COMPONENTS_DIR/$component.sh"
         [[ ! -e "$path" ]] && echo "component $component does not exist" && return
         source "$path"
 
