@@ -1,7 +1,7 @@
 
 [[ -z "$WORKON_DIR" ]] && WORKON_DIR="$HOME/.config/workon"
 source "$WORKON_DIR/backend/operations.sh"
-source "$WORKON_DIR/backend/utils.sh"
+source "$WORKON_DIR/backend/helpers.sh"
 source "$WORKON_DIR/backend/tmux.sh"
 source "$WORKON_DIR/backend/profile.sh"
 source "$WORKON_DIR/backend/template.sh"
