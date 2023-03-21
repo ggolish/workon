@@ -28,6 +28,7 @@ function workon {
 
     let template_mode=0
     let component_mode=0
+    let global_mode=0
 
     let new=0
     let remove=0
