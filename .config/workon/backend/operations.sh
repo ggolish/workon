@@ -16,7 +16,7 @@ function __new {
             ;;
         component)
             dest_dir="$WORKON_COMPONENTS_DIR"
-            template_dir="$WORKON_TEMPLATES_DIR"
+            template_dir="$WORKON_COMPONENTS_DIR"
             ;;
         profile)
             dest_dir="$WORKON_PROFILES_DIR"
