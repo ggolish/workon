@@ -34,8 +34,8 @@ function __update_br {
     if [[ ! -z "$WORKON_GIT_ROOT" ]]; then
         prepend="$WORKON_GIT_ROOT"
         if [[ ! -z "$work_tree" ]]; then
-            prepend="$prepend/$work_tree"
             WORKON_WORKTREE_ROOT="$prepend"
+            prepend="$prepend/$work_tree"
         fi
         BR="$prepend/$BR"
         return
