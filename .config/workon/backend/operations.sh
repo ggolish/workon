@@ -26,6 +26,10 @@ function __new {
             dest_dir="$WORKON_GLOBALS_DIR"
             template_dir=""
             ;;
+        util)
+            dest_dir="$WORKON_UTILS_DIR"
+            template_dir="$WORKON_UTILS_DIR"
+            ;;
         *)
             echo "type $type unknown"
             return
@@ -65,6 +69,9 @@ function __edit {
             ;;
         global)
             dest_dir="$WORKON_GLOBALS_DIR"
+            ;;
+        util)
+            dest_dir="$WORKON_UTILS_DIR"
             ;;
         *)
             echo "type $type unknown"
@@ -113,6 +120,9 @@ function __remove {
         global)
             dest_dir="$WORKON_GLOBALS_DIR"
             ;;
+        util)
+            dest_dir="$WORKON_UTILS_DIR"
+            ;;
         *)
             echo "type $type unknown"
             return
@@ -154,6 +164,9 @@ function __is_forbidden {
             forbidden_list=("base")
             ;;
         component)
+            forbidden_list=("base")
+            ;;
+        util)
             forbidden_list=("base")
             ;;
         *)

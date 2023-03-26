@@ -7,6 +7,7 @@ source "$WORKON_DIR/backend/profile.sh"
 source "$WORKON_DIR/backend/template.sh"
 source "$WORKON_DIR/backend/component.sh"
 source "$WORKON_DIR/backend/global.sh"
+source "$WORKON_DIR/backend/util.sh"
 
 WORKON_PROFILES_DIR="$WORKON_DIR/profiles"
 WORKON_UTILS_DIR="$WORKON_DIR/utils"
@@ -29,6 +30,7 @@ function workon {
     let template_mode=0
     let component_mode=0
     let global_mode=0
+    let util_mode=0
 
     let new=0
     let remove=0
@@ -43,6 +45,9 @@ function workon {
         shift
     elif [[ "$1" == "--global" ]]; then
         let global_mode=1
+        shift
+    elif [[ "$1" == "--util" ]]; then
+        let util_mode=1
         shift
     fi
 
@@ -85,6 +90,11 @@ function workon {
 
     if (( $global_mode == 1 )); then
         __global_main "$new" "$remove" "$edit" "$1"
+        return
+    fi
+
+    if (( $util_mode == 1 )); then
+        __util_main "$new" "$remove" "$edit" "$1"
         return
     fi
 
