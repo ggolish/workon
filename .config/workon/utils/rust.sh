@@ -13,21 +13,22 @@ function __util_activate {
 
     fi
 
-    rustup default "$WORKON_RUST_VERSION" &> /dev/null || return
+    export RUSTUP_TOOLCHAIN="$WORKON_RUST_VERSION"
     if [[ -n "$WORKON_RUST_UPDATE" ]]; then
         echo "Updating rust $WORKON_RUST_VERSION..."
-        rustup update &> /dev/null
+        rustup update "$WORKON_RUST_VERSION" &> /dev/null
     fi
 
-    if [[ -z $(rustup component list | grep '^rust-analyzer') ]]; then
+    if [[ -z $(rustup component list --toolchain "$WORKON_RUST_VERSION" | grep '^rust-analyzer') ]]; then
         echo "Installing rust-analyzer..."
-        if ! rustup component add rust-analyzer; then
+        if ! rustup component add --toolchain "$WORKON_RUST_VERSION" rust-analyzer; then
             echo "Unable to install rust-analyzer for rust $WORKON_RUST_VERSION!"
         fi
     fi
 }
 
 function __util_clean {
+    unset RUSTUP_TOOLCHAIN
     unset WORKON_RUST_VERSION
     unset WORKON_RUST_UPDATE
 }
