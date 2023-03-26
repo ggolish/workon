@@ -6,6 +6,8 @@
 #
 # WORKON_PYENV_VIRTUALENV=
 # WORKON_PYENV_VERSION=
+#
+# WORKON_GO_VERSION=
 
 function __profile_launch {
     return
