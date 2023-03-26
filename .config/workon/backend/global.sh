@@ -1,6 +1,6 @@
 function __load_globals {
     [[ ! -d "$WORKON_GLOBALS_DIR" ]] && return
-    for global in $WORKON_GLOBALS_DIR/*.sh; do
+    for global in $(find $WORKON_GLOBALS_DIR -iname '*.sh'); do
         source "$global"
     done
 }
