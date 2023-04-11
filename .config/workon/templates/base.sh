@@ -11,6 +11,8 @@
 #
 # WORKON_RUST_VERSION=
 # WORKON_RUST_UPDATE=1
+#
+# WORKON_ZIG_VERSION=
 
 function __profile_launch {
     return
