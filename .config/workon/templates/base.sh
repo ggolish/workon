@@ -13,6 +13,8 @@
 # WORKON_RUST_UPDATE=1
 #
 # WORKON_ZIG_VERSION=
+#
+# WORKON_FLUTTER_VERSION=
 
 function __profile_launch {
     return
