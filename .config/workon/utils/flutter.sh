@@ -1,6 +1,7 @@
 # Variables that MUST be set:
 #   WORKON_FLUTTER_VERSION: The version of flutter to use. It will downloaded
-#   automatically if it is not present.
+#   automatically if it is not present. The keywords 'stable' and 'beta' can be
+#   used to indicate the latest build in those channels should be used.
 #
 # Variables used internally:
 #   WORKON_FLUTTER_DIR: The local flutter installation directory used to manage versions.
@@ -12,8 +13,20 @@ function __util_activate {
     WORKON_FLUTTER_DIR="$HOME/.local/flutter"
     mkdir -p "$WORKON_FLUTTER_DIR"
 
+    function __flutter_get_version_by_channel {
+        local channel="$1"
+        [[ "$channel" != "stable" ]] && [[ "$channel" != "beta" ]] && echo "invalid flutter channel $channel" 1>&2 && return
+        local versions=$(curl https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json 2> /dev/null)
+        local hash=$(echo -n "$versions" | jq -r .current_release."$channel")
+        echo -n "$versions" | jq -r ".releases | .[] | select(.hash == \"$hash\") | .version"
+    }
+
     function __flutter_get_version {
         local version="$1"
+
+        if [[ "$version" == "stable" || "$version" == "beta" ]]; then
+            version=$(__flutter_get_version_by_channel "$version")
+        fi
 
         # A postfix of .pre indicates a beta channel build.
         if [[ "$(basename "$version" .pre)" != "$version" ]]; then
