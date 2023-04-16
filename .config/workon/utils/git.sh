@@ -59,6 +59,9 @@ function __create_repo {
 
     mkdir -p "$git_root"
     git -C "$git_root" init
+    if [[ -n "$WORKON_GIT_REMOTE" ]]; then
+        git -C "$git_root" remote add origin "$WORKON_GIT_REMOTE"
+    fi
     if [[ ! -z "$WORKON_GIT_ROOT" ]]; then
         mkdir -p "$git_root/$BR"
     fi
