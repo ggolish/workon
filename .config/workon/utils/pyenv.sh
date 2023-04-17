@@ -25,6 +25,9 @@ function __ensure_pyenv_virtualenv {
 
 function __util_activate {
     if [[ -z "$WORKON_PYENV_VIRTUALENV" ]]; then
+        # Tmux (somehow) leaks pyenv sessions sometimes. If the profile does
+        # not set a venv then we need to make sure one is not active.
+        [[ -n "$PYENV_VIRTUAL_ENV" ]] && pyenv deactivate
         return
     fi
     if ! __ensure_pyenv; then
