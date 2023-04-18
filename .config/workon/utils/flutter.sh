@@ -62,6 +62,8 @@ function __util_activate {
 
     __flutter_sanatize_path
     export PATH="$PATH:$flutterdest/bin"
+    export PUB_CACHE="$flutterdest/.pub-cache"
+    export PATH="$PATH:$PUB_CACHE/bin"
 }
 
 function __util_clean {
@@ -73,4 +75,5 @@ function __util_clean {
 
     unset WORKON_FLUTTER_DIR
     unset WORKON_FLUTTER_VERSION
+    unset PUB_CACHE
 }
