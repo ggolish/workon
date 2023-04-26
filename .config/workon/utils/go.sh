@@ -6,7 +6,7 @@ function __util_activate {
     local gocmd="go$WORKON_GO_VERSION"
     if ! command -v "$gocmd" &> /dev/null; then
         echo "Installing $gocmd..."
-        go install golang.org/dl/$gocmd@latest || return
+        GOPROXY="" go install golang.org/dl/$gocmd@latest || return
     fi
     if ! $gocmd version &> /dev/null; then
         echo "Downloading $gocmd..."
