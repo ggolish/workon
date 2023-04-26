@@ -17,7 +17,7 @@ function __ensure_pyenv_virtualenv {
         pyenv virtualenv $WORKON_PYENV_VIRTUALENV
     else
         if [[ -z $(pyenv versions | awk '{print $1}' | grep $WORKON_PYENV_VERSION) ]]; then
-            pyenv install "$WORKON_PYENV_VERSION"
+            CC=clang pyenv install "$WORKON_PYENV_VERSION"
         fi
         pyenv virtualenv $WORKON_PYENV_VERSION $WORKON_PYENV_VIRTUALENV
     fi
