@@ -108,4 +108,4 @@ function workon {
 # Globals are sourced alongside workon and are always available
 __load_globals
 
-[[ "$ZELLIJ" == "0" ]] && [[ -n "$WORKON_ZELLIJ" ]] && workon "$WORKON_ZELLIJ"
+[[ "$ZELLIJ" == "0" ]] && [[ -n "$WORKON_ZELLIJ" ]] && [[ -z "$WORKON_CURRENT_PROFILE" ]] && workon "$WORKON_ZELLIJ"
