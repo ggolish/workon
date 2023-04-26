@@ -36,7 +36,6 @@ function workon {
     let remove=0
     let clean=0
     let edit=0
-    let use_zellij=0
 
     if [[ "$1" == "--template" ]]; then
         let template_mode=1
@@ -78,7 +77,7 @@ function workon {
             shift
             ;;
         -z|--zellij)
-            let use_zellij=1
+            WORKON_USE_ZELLIJ=1
             shift
     esac
 
@@ -102,7 +101,7 @@ function workon {
         return
     fi
 
-    __profile_main "$new" "$remove" "$edit" "$clean" "$use_zellij" "$1"
+    __profile_main "$new" "$remove" "$edit" "$clean" "$1"
 }
 
 # Globals are sourced alongside workon and are always available

@@ -51,6 +51,13 @@ function __activate_profile {
         return
     fi
 
+    if [[ -n "$WORKON_USE_ZELLIJ" ]]; then
+        WORKON_ZELLIJ="$profile" WORKON_GIT_CURRENT_WORKTREE="$WORKON_GIT_CURRENT_WORKTREE" zellij attach -c "$WORKON_SESSION_NAME"
+        __cleanup_profile
+        return
+    fi
+
+
     # Set the window name if running in tmux
     if [[ -n "$TMUX" ]]; then
         tmux rename-window "$profile"
@@ -117,8 +124,7 @@ function __profile_main {
     local remove="$2"
     local edit="$3"
     local clean="$4"
-    local use_zellij="$5"
-    local profile="$6"
+    local profile="$5"
 
     __ensure_profile_dir
 
@@ -158,16 +164,6 @@ function __profile_main {
 
     if (( $remove == 1 )); then
         __remove profile "$profile"
-        return
-    fi
-
-    if [[ ! -z "$WORKON_CURRENT_PROFILE" ]]; then
-        echo "profile '$WORKON_CURRENT_PROFILE' already active"
-        return
-    fi
-
-    if (( $use_zellij == 1 )); then
-        WORKON_ZELLIJ="$profile" zellij attach -c "$profile"
         return
     fi
 
