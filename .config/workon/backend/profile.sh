@@ -117,7 +117,8 @@ function __profile_main {
     local remove="$2"
     local edit="$3"
     local clean="$4"
-    local profile="$5"
+    local use_zellij="$5"
+    local profile="$6"
 
     __ensure_profile_dir
 
@@ -162,6 +163,11 @@ function __profile_main {
 
     if [[ ! -z "$WORKON_CURRENT_PROFILE" ]]; then
         echo "profile '$WORKON_CURRENT_PROFILE' already active"
+        return
+    fi
+
+    if (( $use_zellij == 1 )); then
+        WORKON_ZELLIJ="$profile" zellij attach -c "$profile"
         return
     fi
 
