@@ -152,10 +152,8 @@ function __profile_main {
     fi
 
     if (( $clean == 1 )); then
-        local worktree="$WORKON_GIT_CURRENT_WORKTREE"
         __cleanup_profile "$WORKON_CURRENT_PROFILE"
-        # Preserve worktree if switching between profiles
-        [[ -n "$profile" ]] && WORKON_GIT_CURRENT_WORKTREE="$worktree" || return
+        return
     fi
 
     if (( $edit == 1 )); then
@@ -166,6 +164,14 @@ function __profile_main {
     if (( $remove == 1 )); then
         __remove profile "$profile"
         return
+    fi
+
+    # If a workon profile is already active, clean it up
+    if [[ -n "$WORKON_CURRENT_PROFILE" ]]; then
+        local worktree="$WORKON_GIT_CURRENT_WORKTREE"
+        __cleanup_profile "$WORKON_CURRENT_PROFILE"
+        # Preserve worktree if switching between profiles
+        WORKON_GIT_CURRENT_WORKTREE="$worktree"
     fi
 
     __activate_profile "$profile"
