@@ -149,12 +149,13 @@ function __profile_main {
 
     if (( $new == 1 )); then
         __new profile "$profile"
-        return
     fi
 
     if (( $clean == 1 )); then
+        local worktree="$WORKON_GIT_CURRENT_WORKTREE"
         __cleanup_profile "$WORKON_CURRENT_PROFILE"
-        return
+        # Preserve worktree if switching between profiles
+        [[ -n "$profile" ]] && WORKON_GIT_CURRENT_WORKTREE="$worktree" || return
     fi
 
     if (( $edit == 1 )); then
