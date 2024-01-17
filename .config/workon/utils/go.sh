@@ -20,7 +20,7 @@ function __util_activate {
 
     [[ -z "$WORKON_GO_VERSION" ]] && return
 
-    local gocmd=""
+    gocmd=""
     if [[ "$WORKON_GO_VERSION" == "stable" ]]; then
         ensure restish install_restish
         gocmd=$(restish https://go.dev/dl/?mode=json -f "body[0].version" -r)
