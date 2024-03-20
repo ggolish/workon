@@ -1,50 +1,50 @@
 # Variables that MUST be set:
-# WORKON_GO_VERSION => The version of Go to be used for the profile.
+#   WORKON_GO_VERSION => The version of Go to be used for the profile. "stable"
+#   can be provided to select the latest release.
+#
+# Variables used internally:
+#   WORKON_GO_DIR: The local go installation directory used to manage versions.
 
 function __util_activate {
-
-    function ensure {
-        if ! command -v "$1" >/dev/null 2>&1; then
-            echo "$1 not found, installing..."
-            $2 $1
-        fi
-    }
-
-    function install_restish {
-        go install github.com/danielgtaylor/restish@latest
-    }
-
-    function install_gocmd {
-        GOPROXY="" go install golang.org/dl/$1@latest
-    }
-
     [[ -z "$WORKON_GO_VERSION" ]] && return
+    WORKON_GO_DIR="$HOME/.local/go"
+    mkdir -p "$WORKON_GO_DIR"
 
-    local gocmd=""
+    local go_version="go${WORKON_GO_VERSION}"
     if [[ "$WORKON_GO_VERSION" == "stable" ]]; then
-        ensure restish install_restish
-        gocmd=$(restish https://go.dev/dl/?mode=json -f "body[0].version" -r)
-    else
-        gocmd="go$WORKON_GO_VERSION"
+        go_version=$(curl https://go.dev/dl/?mode=json 2> /dev/null | jq -rc .[0].version)
     fi
 
-    ensure $gocmd install_gocmd
-
-    if ! $gocmd version &> /dev/null; then
-        echo "Downloading $gocmd..."
-        $gocmd download
+    local dest_path="${WORKON_GO_DIR}/${go_version}"
+    if [[ ! -d "$dest_path" ]]; then
+        echo "Fetching new Go version ${go_version}..."
+        mkdir -p "$dest_path"
+        local go_archive="${go_version}.linux-amd64.tar.gz"
+        local go_url="https://go.dev/dl/${go_archive}"
+        pushd /tmp
+        wget "$go_url" &&
+            tar -xvzf "$go_archive" -C "$dest_path"
+        popd
+        echo "Done"
     fi
 
-    alias go="$gocmd"
-
-    unset ensure
-    unset install_restish
-    unset install_gocmd
+    export PATH="${dest_path}/go/bin:$PATH"
+    OLD_GOROOT="$GOROOT"
+    export GOROOT="${dest_path}/go"
 }
 
 function __util_clean {
-    if [[ ! -z "$(alias | grep "^alias go")" ]]; then
-        unalias go
-    fi
+    [[ -z "$WORKON_GO_VERSION" ]] && return
+    local paths="$(echo -n "$PATH" | tr ':' '\n' | grep -v "^$WORKON_GO_DIR")"
+    local newpath=""
+    for path in $paths; do
+        newpath="$newpath:$path"
+    done
+    export PATH="$newpath"
+
+    export GOROOT="$OLD_GOROOT"
+    unset OLD_GOROOT
+
     unset WORKON_GO_VERSION
+    unset WORKON_GO_DIR
 }
