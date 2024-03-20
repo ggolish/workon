@@ -149,6 +149,7 @@ function __profile_main {
 
     if (( $new == 1 )); then
         __new profile "$profile"
+        return
     fi
 
     if (( $clean == 1 )); then
